@@ -1,3 +1,10 @@
+# Ignore out of source build
+build/
+
+# Temporary fiels
+*.~
+*~
+
 # Compiled Object files
 *.slo
 *.lo
