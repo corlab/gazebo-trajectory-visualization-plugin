@@ -5,6 +5,13 @@ build/
 *.~
 *~
 
+# Eclipse Project Files
+.project
+.cproject
+
+# Log Files
+*.log
+
 # Compiled Object files
 *.slo
 *.lo
