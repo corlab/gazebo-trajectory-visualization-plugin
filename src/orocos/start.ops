@@ -1,0 +1,7 @@
+// Start this script by using:
+// deployer-gnulinux -s start.ops -linfo
+
+// For ROS builds, we could also import using the package name.
+import("DynamicLinePlugin")
+
+loadComponent("service","TrajectoryService::GazeboCommunication")
