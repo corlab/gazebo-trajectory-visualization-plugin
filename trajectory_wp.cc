@@ -11,9 +11,12 @@ namespace gazebo
 
 		private: struct lineObject{			
 			rendering::DynamicLines* line;
+			
 			unsigned int draw:1; 
 			unsigned int clear:1;
 			unsigned int del:1;
+			unsigned int lifecycle:1;
+			
 		};
 		
 		private: rendering::ScenePtr scene;
@@ -27,15 +30,17 @@ namespace gazebo
 		private: std::string service_pause = "/trajectory/command/pause";
 		private: std::string service_resume = "/trajectory/command/resume";
 		private: std::string service_newTrajectory = "/trajectory/command/newTrajectory";
+		private: std::string service_newCustomTrajectory = "/trajectory/command/newCustomTrajectory";
+		private: std::string service_addPoint = "/trajectory/command/addPoint";
 		private: std::string service_delTrajectory = "/trajectory/command/delTrajectory";
 		private: std::string service_clearTrajectory = "/trajectory/command/clearTrajectory";
 		private: std::string service_pauseTrajectory = "/trajectory/command/pauseTrajectory";
 		private: std::string service_resumeTrajectory = "/trajectory/command/resumeTrajectory";
-		private: std::string service_changeColor = "/trajectory/command/resumeTrajectory";
+
 		
 		
 		private: int colorIndex = 0;
-		private: std::string color[5] = { "Gazebo/Purple", "Gazebo/Yellow", "Gazebo/Green", "Gazebo/Red","Gazebo/White"};
+		private: std::string color[8] = { "Gazebo/Purple", "Gazebo/Yellow", "Gazebo/Green", "Gazebo/Red","Gazebo/White", "Gazebo/Yellow","Gazebo/Turquoise","Gazebo/Blue" };
       
                 /////////////////////////////////////////////
                 /// \brief Destructor
@@ -91,6 +96,16 @@ namespace gazebo
 			    std::cerr << "Error advertising service [" << service_resume << "]" << std::endl;
 			    return;
 			  }
+			if (!node.Advertise(service_newCustomTrajectory, &SystemGUI::newCustomTrajectory, this))
+			  {
+			    std::cerr << "Error advertising service [" << service_newCustomTrajectory << "]" << std::endl;
+			    return;
+			  }
+			if (!node.Advertise(service_addPoint, &SystemGUI::addPoint, this))
+			  {
+			    std::cerr << "Error advertising service [" << service_addPoint << "]" << std::endl;
+			    return;
+			  }
 
 			this->connections.push_back(
 			rendering::Events::ConnectCreateScene(
@@ -124,9 +139,12 @@ namespace gazebo
 					{			
 						
 						rendering::VisualPtr vis = scene->GetVisual(object.first);
+						if(vis!=nullptr)
+						{
 						math::Pose pose = vis->GetWorldPose();
 						math::Vector3 vec = pose.pos;
 						pointAdd((object.second).line,vec.x,vec.y,vec.z);
+						}
 					}
 
 					if((object.second).del)
@@ -170,7 +188,7 @@ namespace gazebo
 
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
 			{
-				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0};
+				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 0};
 			}
 		}
 
@@ -189,7 +207,7 @@ namespace gazebo
                 ///Increments the index of the colorsArray.	
 		private: void incColorIndex()
 		{
-			if(colorIndex++ >= 4) colorIndex = 0;
+			if(colorIndex++ >= 7) colorIndex = 0;
 		}
 
 		/////////////////////////////////////////////
@@ -289,6 +307,42 @@ namespace gazebo
 				(trajectoryObjects.find(_req.data())->second.draw) = 1;
 			}
 		}
+
+		/////////////////////////////////////////////
+                ///Sets the drawFlag of a given lineObjects.
+		private: void newCustomTrajectory(const ignition::msgs::StringMsg &_req)
+		{
+			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
+			{
+				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 0};
+			}
+		}
+
+		private: void addPoint(const ignition::msgs::StringMsg &_req)
+		{
+			std::vector<std::string> array;
+			std::size_t pos = 0, found;
+			while((found = _req.data().find_first_of(' ', pos)) != std::string::npos)
+			{
+				array.push_back(_req.data().substr(pos, found - pos));
+				pos = found+1;
+			}
+			array.push_back(_req.data().substr(pos));
+
+			if(trajectoryObjects.find(array[0]) == trajectoryObjects.end())
+			{
+				std::cerr << "Error " << _req.data() << " not found" << std::endl;
+			}
+			else
+			{
+			pointAdd((trajectoryObjects.find(array[0])->second).line,std::stod(array[1]),std::stod(array[2]),std::stod(array[3]));
+			}
+		}
+
+		
+
+
+
 		/// All the event connections.
 		private: std::vector<event::ConnectionPtr> connections;
 };
