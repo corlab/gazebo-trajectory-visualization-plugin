@@ -129,30 +129,50 @@ namespace gazebo
 
 					if((object.second).clear)
 					{
-						
-						(object.second).line->Clear();
-						(object.second).line->Update();
-						(object.second).clear = 0;
+						clearHandler(object.second);
 					}	
 
 					else if((object.second).draw)
-					{			
-						
-						rendering::VisualPtr vis = scene->GetVisual(object.first);
-						if(vis!=nullptr)
-						{
-						math::Pose pose = vis->GetWorldPose();
-						math::Vector3 vec = pose.pos;
-						pointAdd((object.second).line,vec.x,vec.y,vec.z);
-						}
+					{				
+						drawHandler(object.second,object.first);
 					}
 
 					if((object.second).del)
 					{
-						visual->DeleteDynamicLine((object.second).line);
-						trajectoryObjects.erase(object.first);
+						delHandler(object.second,object.first);
 					}		
 			}
+		}
+
+		/////////////////////////////////////////////
+                /// Clears the line and his clearFlag.
+		private: void clearHandler(struct lineObject &object)
+		{
+			(object).line->Clear();
+			(object).line->Update();
+			(object).clear = 0;
+		}
+
+		/////////////////////////////////////////////
+                /// Gets the coordinates of the visual and adds it to line object.
+		private: void drawHandler(struct lineObject &object,std::string name)
+		{
+			rendering::VisualPtr vis = scene->GetVisual(name);
+			if(vis!=nullptr)
+			{
+				math::Pose pose = vis->GetWorldPose();
+				math::Vector3 vec = pose.pos;
+				pointAdd((object).line,vec.x,vec.y,vec.z);
+			}
+
+		}
+
+		/////////////////////////////////////////////
+                /// Deletes lineObject and the entry in trajectoryObjects.
+		private: void delHandler(struct lineObject &object,std::string name)
+		{
+			visual->DeleteDynamicLine((object).line);
+			trajectoryObjects.erase(name);
 		}
 
 		
@@ -318,6 +338,9 @@ namespace gazebo
 			}
 		}
 
+		/////////////////////////////////////////////
+                ///Adds a point to trajectory.
+		///Cuts string in name and coords.
 		private: void addPoint(const ignition::msgs::StringMsg &_req)
 		{
 			std::vector<std::string> array;
