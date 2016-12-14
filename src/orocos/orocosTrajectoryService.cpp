@@ -22,10 +22,7 @@ namespace TrajectoryService
  	// Prepare the input parameters.
 	ignition::msgs::StringMsg req;
     public:
-        /**
-         * This example sets the interface up in the Constructor
-         * of the component.
-         */
+
         GazeboCommunication(std::string name)
             : RTT::TaskContext(name)
         {
@@ -171,24 +168,24 @@ namespace TrajectoryService
 
         void updateHook()
         {
-        	//log(Info) << "Update !" <<endlog();
+
         }
         bool configureHook()
         {
-		//this->setPeriod(0.5);
-		//log(Info) << "Configure !" <<endlog();
+
+
         	return true;
         }
 	bool startHook(){
-		//log(Info) << "start !" <<endlog();
+
 		return true;
 	}
 	void stopHook(){
-		//log(Info) << "stop !" <<endlog();
+
 		
 	}
 	void cleanupHook(){
-		//log(Info) << "clean !" <<endlog();
+		
 		
 	}
     };
