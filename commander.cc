@@ -227,9 +227,37 @@ int main(int argc, char **argv)
 			return 1;
 
 		}
+		else if(arg1 == "setLifecycle" && argc==3)
+		{
+			std::cerr << "Lifecycle" << std::endl;
+			std::string modelName = argv[2];
+			
+						
+			req.set_data(modelName);
+			bool executed = node.Request("/trajectory/command/setLifecycle", req);
+
+			if (!executed)
+				std::cerr << "Service call failed" << std::endl;
+			return 1;
+
+		}
+		else if(arg1 == "removeLifecycle" && argc==3)
+		{
+			std::cerr << "removed Lifecycle" << std::endl;
+			std::string modelName = argv[2];
+			
+						
+			req.set_data(modelName);
+			bool executed = node.Request("/trajectory/command/removeLifecycle", req);
+
+			if (!executed)
+				std::cerr << "Service call failed" << std::endl;
+			return 1;
+
+		}
 		else if(arg1 == "help")
 		{
-			std::cerr << "clear,newTrajectory,delTrajectory,clearTrajectory,pauseTrajectory,resumeTrajectory,delALl,pause,resume" << std::endl;
+			std::cerr << "clear,newTrajectory,delTrajectory,clearTrajectory,pauseTrajectory,resumeTrajectory,delALl,pause,resume,newCustomTrajectory,addPoint" << std::endl;
 
 		}
 		else 

@@ -2,6 +2,7 @@
 #include <gazebo/gazebo.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
+#include <ignition/math.hh>
 
 
 namespace gazebo
@@ -16,7 +17,8 @@ namespace gazebo
 			unsigned int clear:1;
 			unsigned int del:1;
 			unsigned int lifecycle:1;
-			
+			int length;
+			int index;
 		};
 		
 		private: rendering::ScenePtr scene;
@@ -36,6 +38,8 @@ namespace gazebo
 		private: std::string service_clearTrajectory = "/trajectory/command/clearTrajectory";
 		private: std::string service_pauseTrajectory = "/trajectory/command/pauseTrajectory";
 		private: std::string service_resumeTrajectory = "/trajectory/command/resumeTrajectory";
+		private: std::string service_setLifecycle = "/trajectory/command/setLifecycle";
+		private: std::string service_removeLifecycle = "/trajectory/command/removeLifecycle";
 
 		
 		
@@ -106,6 +110,16 @@ namespace gazebo
 			    std::cerr << "Error advertising service [" << service_addPoint << "]" << std::endl;
 			    return;
 			  }
+			if (!node.Advertise(service_setLifecycle, &SystemGUI::setLifecycle, this))
+			  {
+			    std::cerr << "Error advertising service [" << service_setLifecycle << "]" << std::endl;
+			    return;
+			  }
+			if (!node.Advertise(service_removeLifecycle, &SystemGUI::removeLifecycle, this))
+			  {
+			    std::cerr << "Error advertising service [" << service_removeLifecycle << "]" << std::endl;
+			    return;
+			  }
 
 			this->connections.push_back(
 			rendering::Events::ConnectCreateScene(
@@ -134,7 +148,13 @@ namespace gazebo
 
 					else if((object.second).draw)
 					{				
+						
 						drawHandler(object.second,object.first);
+					}
+					else if((object.second).lifecycle)
+					{				
+						
+						cycleHandler(object.second,object.first);
 					}
 
 					if((object.second).del)
@@ -163,6 +183,32 @@ namespace gazebo
 				math::Pose pose = vis->GetWorldPose();
 				math::Vector3 vec = pose.pos;
 				pointAdd((object).line,vec.x,vec.y,vec.z);
+			}
+		}
+
+		/////////////////////////////////////////////
+                /// Gets the coordinates of the visual and adds it to line object.
+		private: void cycleHandler(struct lineObject &object,std::string name)
+		{
+			rendering::VisualPtr vis = scene->GetVisual(name);
+			if(vis!=nullptr)
+			{
+				if(object.line->GetPointCount()==object.length)
+				{
+					math::Pose pose = vis->GetWorldPose();
+					math::Vector3 vec = pose.pos;
+					ignition::math::Vector3d vec3;
+					vec3.Set(vec.x,vec.y,vec.z);
+					object.line->SetPoint(object.index,vec3);
+					if(object.index++ > object.length) object.index = 0;
+					
+				}
+				else
+				{
+					math::Pose pose = vis->GetWorldPose();
+					math::Vector3 vec = pose.pos;
+					pointAdd((object).line,vec.x,vec.y,vec.z);
+				}
 			}
 
 		}
@@ -208,7 +254,7 @@ namespace gazebo
 
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
 			{
-				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 0};
+				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 0,5000,0};
 			}
 		}
 
@@ -334,13 +380,13 @@ namespace gazebo
 		{
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
 			{
-				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 0};
+				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 0,5000,0};
 			}
 		}
 
 		/////////////////////////////////////////////
                 ///Adds a point to trajectory.
-		///Cuts string in name and coords.
+		///Cuts string in name and coordinate.
 		private: void addPoint(const ignition::msgs::StringMsg &_req)
 		{
 			std::vector<std::string> array;
@@ -359,6 +405,36 @@ namespace gazebo
 			else
 			{
 			pointAdd((trajectoryObjects.find(array[0])->second).line,std::stod(array[1]),std::stod(array[2]),std::stod(array[3]));
+			}
+		}
+
+		private: void setLifecycle(const ignition::msgs::StringMsg &_req)
+		{
+
+			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
+			{
+				std::cerr << "Error " << _req.data() << " not found" << std::endl;
+			}
+			else
+			{
+				(trajectoryObjects.find(_req.data())->second.draw) = 0;
+				(trajectoryObjects.find(_req.data())->second.clear) = 1;
+				(trajectoryObjects.find(_req.data())->second.lifecycle) = 1;
+			}
+		}
+
+		private: void removeLifecycle(const ignition::msgs::StringMsg &_req)
+		{
+
+			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
+			{
+				std::cerr << "Error " << _req.data() << " not found" << std::endl;
+			}
+			else
+			{
+				(trajectoryObjects.find(_req.data())->second.draw) = 1;
+				(trajectoryObjects.find(_req.data())->second.clear) = 1;
+				(trajectoryObjects.find(_req.data())->second.lifecycle) = 0;
 			}
 		}
 
