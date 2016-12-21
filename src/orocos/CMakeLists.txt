@@ -38,7 +38,8 @@ include_directories(${IGNITION-TRANSPORT_INCLUDE_DIRS})
 # Creates a component library libexample-<target>.so
 # and installs in the directory lib/orocos/example/
 #
-orocos_component(orocosTrajectoryService orocosTrajectoryService.cpp) # ...you may add multiple source files
+#orocos_component(orocosTrajectoryService orocosTrajectoryService.cpp) # ...you may add multiple source files
+orocos_service(orocosTrajectoryService orocosTrajectoryService.cpp)
 target_link_libraries(orocosTrajectoryService ${IGNITION-TRANSPORT_LIBRARIES})
 # You may add multiple orocos_component statements.
  
