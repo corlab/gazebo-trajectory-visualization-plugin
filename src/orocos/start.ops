@@ -1,4 +1,4 @@
 
 import("trajectoryService")
 
-loadService("this","dot")
+loadService("this","TrajectoryService")

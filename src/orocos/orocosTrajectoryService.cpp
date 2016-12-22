@@ -59,24 +59,24 @@ namespace TrajectoryService
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 
-		this->addOperation("newCustomTrajectory", &GazeboCommunication::newCustomTrajectory, this, RTT::OwnThread).doc(".")
-			.arg("model", "Name of the model");
+		this->addOperation("newCustomTrajectory", &GazeboCommunication::newCustomTrajectory, this, RTT::OwnThread).doc("Creates a static line.")
+			.arg("model", "Name of the static line model");
 
-		this->addOperation("addPoint", &GazeboCommunication::addPoint, this, RTT::OwnThread).doc(".")
+		this->addOperation("addPoint", &GazeboCommunication::addPoint, this, RTT::OwnThread).doc("Adds a point to a staticLine.")
 			.arg("model", "Name of the model")
-			.arg("x", "")
-			.arg("y", "")
-			.arg("z", "");
+			.arg("x", "X coordinate of point")
+			.arg("y", "Y coordinate of point")
+			.arg("z", "Z coordinate of point");
 
-		this->addOperation("setLifecycleModel", &GazeboCommunication::setLifecycleModel, this, RTT::OwnThread).doc("Resumes drawing of a specific trajectory.")
+		this->addOperation("setLifecycleModel", &GazeboCommunication::setLifecycleModel, this, RTT::OwnThread).doc("adds a lifecylce to line.")
 			.arg("model", "Name of the model");
-		this->addOperation("setLifecycleLink", &GazeboCommunication::setLifecycleLink, this, RTT::OwnThread).doc("Resumes drawing of a specific trajectory.")
+		this->addOperation("setLifecycleLink", &GazeboCommunication::setLifecycleLink, this, RTT::OwnThread).doc("adds a lifecylce to line.")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 
-		this->addOperation("removeLifecycleModel", &GazeboCommunication::removeLifecycleModel, this, RTT::OwnThread).doc("Resumes drawing of a specific trajectory.")
+		this->addOperation("removeLifecycleModel", &GazeboCommunication::removeLifecycleModel, this, RTT::OwnThread).doc("removes lifecycle of line.")
 			.arg("model", "Name of the model");
-		this->addOperation("removeLifecycleLink", &GazeboCommunication::removeLifecycleLink, this, RTT::OwnThread).doc("Resumes drawing of a specific trajectory.")
+		this->addOperation("removeLifecycleLink", &GazeboCommunication::removeLifecycleLink, this, RTT::OwnThread).doc("removes lifecycle of line.")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 		
@@ -228,12 +228,12 @@ namespace TrajectoryService
 		if (!executed) std::cerr << "Service call failed" << std::endl;
 	}
 
-	void addPoint(std::string model,std::string x,std::string y,std::string z)
+	void addPoint(std::string model,double x,double y,double z)
 	{
-		req.set_data(model+" "+x+" "+y+" "+z);
+		req.set_data(model+" "+std::to_string(x)+" "+std::to_string(y)+" "+std::to_string(z));
 		bool executed = node.Request("/trajectory/command/addPoint", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;
 	}
     };
 }
-ORO_SERVICE_NAMED_PLUGIN(TrajectoryService::GazeboCommunication, "dot")
+ORO_SERVICE_NAMED_PLUGIN(TrajectoryService::GazeboCommunication, "TrajectoryService")
