@@ -28,5 +28,18 @@ target_link_libraries(trajectory_wp ${GAZEBO_LIBRARIES} ${IGNITION-TRANSPORT_LIB
 add_executable(commander commander.cc)
 target_link_libraries(commander ${GAZEBO_LIBRARIES} ${IGNITION-TRANSPORT_LIBRARIES})
 
+find_package(OROCOS-RTT REQUIRED ${RTT_HINTS})
+
+
+if(OROCOS-RTT_FOUND)
+#	project(trajectoryService)
+
+#	add_compile_options(-std=c++11)
+
+#	include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake)
+#	orocos_service(orocosTrajectoryService orocosTrajectoryService.cpp)
+#	target_link_libraries(orocosTrajectoryService ${IGNITION-TRANSPORT_LIBRARIES})
+#	orocos_generate_package()
+endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
