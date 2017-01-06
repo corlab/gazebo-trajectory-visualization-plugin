@@ -20,6 +20,8 @@ namespace gazebo
 			int length;
 			int index;
 		};
+
+		private: int lcLength = 3000;
 		
 		private: rendering::ScenePtr scene;
 		private: rendering::VisualPtr visual;
@@ -199,8 +201,15 @@ namespace gazebo
 					math::Vector3 vec = pose.pos;
 					ignition::math::Vector3d vec3;
 					vec3.Set(vec.x,vec.y,vec.z);
-					object.line->SetPoint(object.index,vec3);
-					if(object.index++ > object.length) object.index = 0;
+					//object.line->SetPoint(object.index,vec3);
+					//if(object.index++ > object.length) object.index = 0;
+					for(int i = (object.length -1) ; i >= 0 ;i--)
+					{
+						if(i==0) object.line->SetPoint(0,vec3);
+						else object.line->SetPoint(i,object.line->Point(i-1));
+
+					}
+					
 					
 				}
 				else
@@ -254,7 +263,7 @@ namespace gazebo
 
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
 			{
-				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 0,5000,0};
+				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 0,lcLength,0};
 			}
 		}
 
@@ -380,7 +389,7 @@ namespace gazebo
 		{
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
 			{
-				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 0,5000,0};
+				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 0,lcLength,0};
 			}
 		}
 
