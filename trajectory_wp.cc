@@ -40,8 +40,9 @@ namespace gazebo
 		private: std::string service_clearTrajectory = "/trajectory/command/clearTrajectory";
 		private: std::string service_pauseTrajectory = "/trajectory/command/pauseTrajectory";
 		private: std::string service_resumeTrajectory = "/trajectory/command/resumeTrajectory";
+		private: std::string service_activateLifecycle = "/trajectory/command/activateLifecycle";
 		private: std::string service_setLifecycle = "/trajectory/command/setLifecycle";
-		private: std::string service_removeLifecycle = "/trajectory/command/removeLifecycle";
+		private: std::string service_deactivateLifecycle = "/trajectory/command/deactivateLifecycle";
 
 		
 		
@@ -117,9 +118,14 @@ namespace gazebo
 			    std::cerr << "Error advertising service [" << service_setLifecycle << "]" << std::endl;
 			    return;
 			  }
-			if (!node.Advertise(service_removeLifecycle, &SystemGUI::removeLifecycle, this))
+			if (!node.Advertise(service_deactivateLifecycle, &SystemGUI::deactivateLifecycle, this))
 			  {
-			    std::cerr << "Error advertising service [" << service_removeLifecycle << "]" << std::endl;
+			    std::cerr << "Error advertising service [" << service_deactivateLifecycle << "]" << std::endl;
+			    return;
+			  }
+			if (!node.Advertise(service_activateLifecycle, &SystemGUI::activateLifecycle, this))
+			  {
+			    std::cerr << "Error advertising service [" << service_activateLifecycle << "]" << std::endl;
 			    return;
 			  }
 
@@ -417,7 +423,7 @@ namespace gazebo
 			}
 		}
 
-		private: void setLifecycle(const ignition::msgs::StringMsg &_req)
+		private: void activateLifecycle(const ignition::msgs::StringMsg &_req)
 		{
 
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
@@ -432,7 +438,7 @@ namespace gazebo
 			}
 		}
 
-		private: void removeLifecycle(const ignition::msgs::StringMsg &_req)
+		private: void deactivateLifecycle(const ignition::msgs::StringMsg &_req)
 		{
 
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
@@ -445,6 +451,34 @@ namespace gazebo
 				(trajectoryObjects.find(_req.data())->second.clear) = 1;
 				(trajectoryObjects.find(_req.data())->second.lifecycle) = 0;
 			}
+		}
+
+		
+		private: void setLifecycle(const ignition::msgs::StringMsg &_req)
+		{
+			std::vector<std::string> array;
+			std::size_t pos = 0, found;
+			while((found = _req.data().find_first_of(' ', pos)) != std::string::npos)
+			{
+				array.push_back(_req.data().substr(pos, found - pos));
+				pos = found+1;
+			}
+			array.push_back(_req.data().substr(pos));
+
+			if(trajectoryObjects.find(array[0]) == trajectoryObjects.end())
+			{
+				std::cerr << "Error " << _req.data() << " not found" << std::endl;
+			}
+			else
+			{
+				((trajectoryObjects.find(array[0])->second).draw) = 0;
+				((trajectoryObjects.find(array[0])->second).clear) = 1;
+				((trajectoryObjects.find(array[0])->second).lifecycle) = 1;
+				((trajectoryObjects.find(array[0])->second).length) = std::stoi(array[1]);
+
+			}
+
+			
 		}
 
 		

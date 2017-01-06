@@ -227,28 +227,43 @@ int main(int argc, char **argv)
 			return 1;
 
 		}
-		else if(arg1 == "setLifecycle" && argc==3)
+		else if(arg1 == "activateLifecycle" && argc==3)
 		{
 			std::cerr << "Lifecycle" << std::endl;
 			std::string modelName = argv[2];
 			
 						
 			req.set_data(modelName);
-			bool executed = node.Request("/trajectory/command/setLifecycle", req);
+			bool executed = node.Request("/trajectory/command/activateLifecycle", req);
 
 			if (!executed)
 				std::cerr << "Service call failed" << std::endl;
 			return 1;
 
 		}
-		else if(arg1 == "removeLifecycle" && argc==3)
+		else if(arg1 == "deactivateLifecycle" && argc==3)
 		{
 			std::cerr << "removed Lifecycle" << std::endl;
 			std::string modelName = argv[2];
 			
 						
 			req.set_data(modelName);
-			bool executed = node.Request("/trajectory/command/removeLifecycle", req);
+			bool executed = node.Request("/trajectory/command/deactivateLifecycle", req);
+
+			if (!executed)
+				std::cerr << "Service call failed" << std::endl;
+			return 1;
+
+		}
+		else if(arg1 == "setLifecycle" && argc==4)
+		{
+			std::cerr << "set Lifecycle" << std::endl;
+			std::string modelName = argv[2];
+			std::string length = argv[3];
+
+						
+			req.set_data(modelName+" "+length);
+			bool executed = node.Request("/trajectory/command/setLifecycle", req);
 
 			if (!executed)
 				std::cerr << "Service call failed" << std::endl;
@@ -257,7 +272,7 @@ int main(int argc, char **argv)
 		}
 		else if(arg1 == "help")
 		{
-			std::cerr << "clear,newTrajectory,delTrajectory,clearTrajectory,pauseTrajectory,resumeTrajectory,delALl,pause,resume,newCustomTrajectory,addPoint" << std::endl;
+			std::cerr << "clear,newTrajectory,delTrajectory,clearTrajectory,pauseTrajectory,resumeTrajectory,delALl,pause,resume,newCustomTrajectory,addPoint,activateLifecycle,deactivateLifecycle" << std::endl;
 
 		}
 		else 

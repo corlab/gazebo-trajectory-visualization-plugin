@@ -68,15 +68,24 @@ namespace TrajectoryService
 			.arg("y", "Y coordinate of point")
 			.arg("z", "Z coordinate of point");
 
-		this->addOperation("setLifecycleModel", &GazeboCommunication::setLifecycleModel, this, RTT::OwnThread).doc("adds a lifecylce to line.")
+		this->addOperation("setLifecycleModel", &GazeboCommunication::setLifecycleModel, this, RTT::OwnThread).doc("Changes length of trajectory.")
+			.arg("model", "Name of the model")
+			.arg("length", "Length of the trajectory");
+		this->addOperation("setLifecycleLink", &GazeboCommunication::setLifecycleLink, this, RTT::OwnThread).doc("Changes length of trajectory.")
+			.arg("model", "Name of the model")
+			.arg("link", "Name of the link")
+			.arg("length", "Length of the trajectory");
+
+
+		this->addOperation("activateLifecycleModel", &GazeboCommunication::activateLifecycleModel, this, RTT::OwnThread).doc("adds a lifecylce to line.")
 			.arg("model", "Name of the model");
-		this->addOperation("setLifecycleLink", &GazeboCommunication::setLifecycleLink, this, RTT::OwnThread).doc("adds a lifecylce to line.")
+		this->addOperation("activateLifecycleLink", &GazeboCommunication::activateLifecycleLink, this, RTT::OwnThread).doc("adds a lifecylce to line.")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 
-		this->addOperation("removeLifecycleModel", &GazeboCommunication::removeLifecycleModel, this, RTT::OwnThread).doc("removes lifecycle of line.")
+		this->addOperation("deactivateLifecycleModel", &GazeboCommunication::deactivateLifecycleModel, this, RTT::OwnThread).doc("removes lifecycle of line.")
 			.arg("model", "Name of the model");
-		this->addOperation("removeLifecycleLink", &GazeboCommunication::removeLifecycleLink, this, RTT::OwnThread).doc("removes lifecycle of line.")
+		this->addOperation("deactivateLifecycleLink", &GazeboCommunication::deactivateLifecycleLink, this, RTT::OwnThread).doc("removes lifecycle of line.")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 		
@@ -193,31 +202,31 @@ namespace TrajectoryService
 		if (!executed) std::cerr << "Service call failed" << std::endl;
 	}
 
-	void setLifecycleModel(std::string model)
+	void activateLifecycleModel(std::string model)
 	{
 		req.set_data(model);
-		bool executed = node.Request("/trajectory/command/setLifecycle", req);
+		bool executed = node.Request("/trajectory/command/activateLifecycle", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;
 	}
 
-	void setLifecycleLink(std::string model,std::string link)
+	void activateLifecycleLink(std::string model,std::string link)
 	{
 		req.set_data(model+"::"+link);
-		bool executed = node.Request("/trajectory/command/setLifecycle", req);
+		bool executed = node.Request("/trajectory/command/activateLifecycle", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;	
 	}
 
-	void removeLifecycleModel(std::string model)
+	void deactivateLifecycleModel(std::string model)
 	{
 		req.set_data(model);
-		bool executed = node.Request("/trajectory/command/removeLifecycle", req);
+		bool executed = node.Request("/trajectory/command/deactivateLifecycle", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;
 	}
 
-	void removeLifecycleLink(std::string model,std::string link)
+	void deactivateLifecycleLink(std::string model,std::string link)
 	{
 		req.set_data(model+"::"+link);
-		bool executed = node.Request("/trajectory/command/removeLifecycle", req);
+		bool executed = node.Request("/trajectory/command/deactivateLifecycle", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;	
 	}
 
@@ -232,6 +241,19 @@ namespace TrajectoryService
 	{
 		req.set_data(model+" "+std::to_string(x)+" "+std::to_string(y)+" "+std::to_string(z));
 		bool executed = node.Request("/trajectory/command/addPoint", req);
+		if (!executed) std::cerr << "Service call failed" << std::endl;
+	}
+
+	void setLifecycleModel(std::string model,int length)
+	{
+		req.set_data(model+" "+std::to_string(length));
+		bool executed = node.Request("/trajectory/command/setLifecycle", req);
+		if (!executed) std::cerr << "Service call failed" << std::endl;
+	}
+	void setLifecycleLink(std::string model,std::string link,int length)
+	{
+		req.set_data(model+"::"+link+" "+std::to_string(length));
+		bool executed = node.Request("/trajectory/command/setLifecycle", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;
 	}
     };
