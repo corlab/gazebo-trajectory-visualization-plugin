@@ -25,7 +25,6 @@ namespace TrajectoryService
 	ignition::msgs::StringMsg req;
     public:
         
-
         GazeboCommunication(TaskContext* owner)
             : RTT::Service("TrajectoryService", owner)
         {
@@ -68,6 +67,12 @@ namespace TrajectoryService
 			.arg("y", "Y coordinate of point")
 			.arg("z", "Z coordinate of point");
 
+		this->addOperation("addSquare", &GazeboCommunication::addSquare, this, RTT::OwnThread).doc("Adds a square to a staticLine.")
+			.arg("model", "Name of the model")
+			.arg("x", "X coordinate of point")
+			.arg("y", "Y coordinate of point")
+			.arg("z", "Z coordinate of point");
+
 		this->addOperation("setLifecycleModel", &GazeboCommunication::setLifecycleModel, this, RTT::OwnThread).doc("Changes length of trajectory.")
 			.arg("model", "Name of the model")
 			.arg("length", "Length of the trajectory");
@@ -76,21 +81,18 @@ namespace TrajectoryService
 			.arg("link", "Name of the link")
 			.arg("length", "Length of the trajectory");
 
-
-		this->addOperation("activateLifecycleModel", &GazeboCommunication::activateLifecycleModel, this, RTT::OwnThread).doc("adds a lifecylce to line.")
+		this->addOperation("activateLifecycleModel", &GazeboCommunication::activateLifecycleModel, this, RTT::OwnThread).doc("Adds a lifecylce to line. Default value 3000 Points")
 			.arg("model", "Name of the model");
-		this->addOperation("activateLifecycleLink", &GazeboCommunication::activateLifecycleLink, this, RTT::OwnThread).doc("adds a lifecylce to line.")
+		this->addOperation("activateLifecycleLink", &GazeboCommunication::activateLifecycleLink, this, RTT::OwnThread).doc("Adds a lifecylce to line. Default value 3000 Points")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 
-		this->addOperation("deactivateLifecycleModel", &GazeboCommunication::deactivateLifecycleModel, this, RTT::OwnThread).doc("removes lifecycle of line.")
+		this->addOperation("deactivateLifecycleModel", &GazeboCommunication::deactivateLifecycleModel, this, RTT::OwnThread).doc("removes lifecycle from line.")
 			.arg("model", "Name of the model");
-		this->addOperation("deactivateLifecycleLink", &GazeboCommunication::deactivateLifecycleLink, this, RTT::OwnThread).doc("removes lifecycle of line.")
+		this->addOperation("deactivateLifecycleLink", &GazeboCommunication::deactivateLifecycleLink, this, RTT::OwnThread).doc("removes lifecycle from line.")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 		
-
-
 		this->addOperation("clear", &GazeboCommunication::clear, this, RTT::OwnThread).doc("Clears all trajectorys.");
 		this->addOperation("delAll", &GazeboCommunication::delAll, this, RTT::OwnThread).doc("Deletes all trajectorys.");
 		this->addOperation("pause", &GazeboCommunication::pause, this, RTT::OwnThread).doc("Pauses drawing of all trajectorys");
@@ -104,7 +106,6 @@ namespace TrajectoryService
 		req.set_data(model);
 		bool executed = node.Request("/trajectory/command/newTrajectory", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;
-
 	}
 
 	void newTrajectoryLink(std::string model,std::string link)
@@ -112,7 +113,6 @@ namespace TrajectoryService
 		req.set_data(model+"::"+link);
 		bool executed = node.Request("/trajectory/command/newTrajectory", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;
-
 	}
 
 	void delTrajectoryModel(std::string model)
@@ -141,7 +141,6 @@ namespace TrajectoryService
 		req.set_data(model+"::"+link);
 		bool executed = node.Request("/trajectory/command/clearTrajectory", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;
-
 	}
 
 	void pauseTrajectoryModel(std::string model)
@@ -156,7 +155,6 @@ namespace TrajectoryService
 		req.set_data(model+"::"+link);
 		bool executed = node.Request("/trajectory/command/pauseTrajectory", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;
-
 	}
 
 	void resumeTrajectoryModel(std::string model)
@@ -178,7 +176,6 @@ namespace TrajectoryService
 		req.set_data("clear");
 		bool executed = node.Request("/trajectory/command/clear", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;
-
 	}
 
 	void delAll()
@@ -241,6 +238,13 @@ namespace TrajectoryService
 	{
 		req.set_data(model+" "+std::to_string(x)+" "+std::to_string(y)+" "+std::to_string(z));
 		bool executed = node.Request("/trajectory/command/addPoint", req);
+		if (!executed) std::cerr << "Service call failed" << std::endl;
+	}
+
+	void addSquare(std::string model,double x,double y,double z)
+	{
+		req.set_data(model+" "+std::to_string(x)+" "+std::to_string(y)+" "+std::to_string(z));
+		bool executed = node.Request("/trajectory/command/addStaticSquare", req);
 		if (!executed) std::cerr << "Service call failed" << std::endl;
 	}
 

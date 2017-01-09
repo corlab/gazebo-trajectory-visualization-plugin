@@ -227,6 +227,22 @@ int main(int argc, char **argv)
 			return 1;
 
 		}
+		else if(arg1 == "addSquare" && argc==6)
+		{
+			std::cerr << "resumeTrajectory Link" << std::endl;
+			std::string modelName = argv[2];
+			std::string x = argv[3];
+			std::string y = argv[4];
+			std::string z = argv[5];
+						
+			req.set_data(modelName+" "+x+" "+y+" "+z);
+			bool executed = node.Request("/trajectory/command/addStaticSquare", req);
+
+			if (!executed)
+				std::cerr << "Service call failed" << std::endl;
+			return 1;
+
+		}
 		else if(arg1 == "activateLifecycle" && argc==3)
 		{
 			std::cerr << "Lifecycle" << std::endl;
@@ -272,7 +288,7 @@ int main(int argc, char **argv)
 		}
 		else if(arg1 == "help")
 		{
-			std::cerr << "clear,newTrajectory,delTrajectory,clearTrajectory,pauseTrajectory,resumeTrajectory,delALl,pause,resume,newCustomTrajectory,addPoint,activateLifecycle,deactivateLifecycle" << std::endl;
+			std::cerr << "clear,newTrajectory,delTrajectory,clearTrajectory,pauseTrajectory,resumeTrajectory,delALl,pause,resume,newCustomTrajectory,addPoint,addSquare,activateLifecycle,deactivateLifecycle" << std::endl;
 
 		}
 		else 

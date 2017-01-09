@@ -10,9 +10,8 @@ namespace gazebo
 	class SystemGUI : public SystemPlugin
 	{
 
-		private: struct lineObject{			
+		private: struct lineObject{
 			rendering::DynamicLines* line;
-			
 			unsigned int draw:1; 
 			unsigned int clear:1;
 			unsigned int del:1;
@@ -29,6 +28,7 @@ namespace gazebo
 		private: std::map<std::string, struct lineObject> trajectoryObjects; 
 
 		private: ignition::transport::Node node;
+
 		private: std::string service_clear = "/trajectory/command/clear";
 		private: std::string service_delAll = "/trajectory/command/delAll";
 		private: std::string service_pause = "/trajectory/command/pause";
@@ -43,18 +43,17 @@ namespace gazebo
 		private: std::string service_activateLifecycle = "/trajectory/command/activateLifecycle";
 		private: std::string service_setLifecycle = "/trajectory/command/setLifecycle";
 		private: std::string service_deactivateLifecycle = "/trajectory/command/deactivateLifecycle";
-
-		
-		
+		//TODO
+		private: std::string service_addStaticSquare = "/trajectory/command/addStaticSquare";
 		private: int colorIndex = 0;
 		private: std::string color[8] = { "Gazebo/Purple", "Gazebo/Yellow", "Gazebo/Green", "Gazebo/Red","Gazebo/White", "Gazebo/Yellow","Gazebo/Turquoise","Gazebo/Blue" };
-      
-                /////////////////////////////////////////////
-                /// \brief Destructor
+
+		/////////////////////////////////////////////
+		/// \brief Destructor
 		public: virtual ~SystemGUI(){this->connections.clear();}
 
-                /////////////////////////////////////////////
-                /// \brief Called after the plugin has been constructed.
+		/////////////////////////////////////////////
+		/// \brief Called after the plugin has been constructed.
 		public: void Load(int /*_argc*/, char ** /*_argv*/)
 		{
 
@@ -128,6 +127,11 @@ namespace gazebo
 			    std::cerr << "Error advertising service [" << service_activateLifecycle << "]" << std::endl;
 			    return;
 			  }
+			if (!node.Advertise(service_addStaticSquare, &SystemGUI::addStaticSquare, this))
+			  {
+			    std::cerr << "Error advertising service [" << service_addStaticSquare << "]" << std::endl;
+			    return;
+			  }
 
 			this->connections.push_back(
 			rendering::Events::ConnectCreateScene(
@@ -137,12 +141,12 @@ namespace gazebo
 			std::bind(&SystemGUI::Update, this)));
 		}
 
-                /////////////////////////////////////////////
-                // \brief Called once after Load
+		/////////////////////////////////////////////
+		// \brief Called once after Load
 		private: void Init(){}
 
-                /////////////////////////////////////////////
-                /// \brief Called every PreRender event. See the Load function.
+		/////////////////////////////////////////////
+		/// \brief Called every PreRender event. See the Load function.
 		/// Checks flags for operations
 		void Update()
 		{
@@ -160,8 +164,7 @@ namespace gazebo
 						drawHandler(object.second,object.first);
 					}
 					else if((object.second).lifecycle)
-					{				
-						
+					{					
 						cycleHandler(object.second,object.first);
 					}
 
@@ -173,7 +176,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                /// Clears the line and his clearFlag.
+		/// Clears the line and his clearFlag.
 		private: void clearHandler(struct lineObject &object)
 		{
 			(object).line->Clear();
@@ -182,7 +185,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                /// Gets the coordinates of the visual and adds it to line object.
+		/// Gets the coordinates of the visual and adds it to line object.
 		private: void drawHandler(struct lineObject &object,std::string name)
 		{
 			rendering::VisualPtr vis = scene->GetVisual(name);
@@ -195,7 +198,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                /// Gets the coordinates of the visual and adds it to line object.
+		/// Gets the coordinates of the visual and adds it to line object.
 		private: void cycleHandler(struct lineObject &object,std::string name)
 		{
 			rendering::VisualPtr vis = scene->GetVisual(name);
@@ -207,16 +210,11 @@ namespace gazebo
 					math::Vector3 vec = pose.pos;
 					ignition::math::Vector3d vec3;
 					vec3.Set(vec.x,vec.y,vec.z);
-					//object.line->SetPoint(object.index,vec3);
-					//if(object.index++ > object.length) object.index = 0;
 					for(int i = (object.length -1) ; i >= 0 ;i--)
 					{
 						if(i==0) object.line->SetPoint(0,vec3);
 						else object.line->SetPoint(i,object.line->Point(i-1));
-
 					}
-					
-					
 				}
 				else
 				{
@@ -225,11 +223,10 @@ namespace gazebo
 					pointAdd((object).line,vec.x,vec.y,vec.z);
 				}
 			}
-
 		}
 
 		/////////////////////////////////////////////
-                /// Deletes lineObject and the entry in trajectoryObjects.
+		/// Deletes lineObject and the entry in trajectoryObjects.
 		private: void delHandler(struct lineObject &object,std::string name)
 		{
 			visual->DeleteDynamicLine((object).line);
@@ -239,7 +236,7 @@ namespace gazebo
 		
 
 		/////////////////////////////////////////////
-                ///Gets the scene and creates new visual.
+		///Gets the scene and creates new visual.
 		private: void InitScene()
 		{	
 			scene = rendering::get_scene();
@@ -249,14 +246,14 @@ namespace gazebo
 		}
 		
 		/////////////////////////////////////////////
-                ///Adds a point to a given DynamicLine
+		///Adds a point to a given DynamicLine
 		private: void pointAdd(rendering::DynamicLines* dl,double x,double y,double z)
 		{
 			dl->AddPoint(x,y,z,common::Color::White);
 		}
 
 		/////////////////////////////////////////////
-                ///Checks if visual is existend.If so, generates new trajectory object.
+		///Checks if visual is existend.If so, generates new trajectory object.
 		private: void newTrajectory(const ignition::msgs::StringMsg &_req)
 		{
 			rendering::VisualPtr vis = scene->GetVisual(_req.data());
@@ -274,7 +271,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                ///Creates new DynamicLines and initializes it.
+		///Creates new DynamicLines and initializes it.
 		private: rendering::DynamicLines* getLine()
 		{
 			rendering::DynamicLines* line = visual->CreateDynamicLine(gazebo::rendering::RENDERING_LINE_STRIP);
@@ -285,14 +282,14 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                ///Increments the index of the colorsArray.	
+		///Increments the index of the colorsArray.	
 		private: void incColorIndex()
 		{
 			if(colorIndex++ >= 7) colorIndex = 0;
 		}
 
 		/////////////////////////////////////////////
-                ///Sets the clearFlag of all lineobjects.
+		///Sets the clearFlag of all lineobjects.
 		private: void clear(const ignition::msgs::StringMsg &_req)
 		{
 			for(auto &visual : trajectoryObjects)
@@ -302,7 +299,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                ///Sets the deleteFlag and clearFlag of all lineobjects.
+		 ///Sets the deleteFlag and clearFlag of all lineobjects.
 		private: void delAll(const ignition::msgs::StringMsg &_req)
 		{
 			for(auto &visual : trajectoryObjects)
@@ -313,7 +310,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                ///Sets the drawFlag of all lineObjects to zero.
+		///Sets the drawFlag of all lineObjects to zero.
 		private: void pause(const ignition::msgs::StringMsg &_req)
 		{
 			for(auto &visual : trajectoryObjects)
@@ -323,7 +320,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                ///Sets the drawFlag of all lineObjects.
+		///Sets the drawFlag of all lineObjects.
 		private: void resume(const ignition::msgs::StringMsg &_req)
 		{
 			for(auto &visual : trajectoryObjects)
@@ -333,7 +330,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                ///Sets the clearFlag of a given lineObjects.
+		///Sets the clearFlag of a given lineObjects.
 		private: void clearTrajectory(const ignition::msgs::StringMsg &_req)
 		{
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
@@ -347,7 +344,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                ///Sets the deleteFlag and the clearFlag of a given lineObjects.
+		///Sets the deleteFlag and the clearFlag of a given lineObjects.
 		private: void delTrajectory(const ignition::msgs::StringMsg &_req)
 		{
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
@@ -362,7 +359,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                ///Sets the drawFlag of a given lineObjects to zero.
+		///Sets the drawFlag of a given lineObjects to zero.
 		private: void pauseTrajectory(const ignition::msgs::StringMsg &_req)
 		{
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
@@ -376,7 +373,7 @@ namespace gazebo
 		}
 		
 		/////////////////////////////////////////////
-                ///Sets the drawFlag of a given lineObjects.
+		///Sets the drawFlag of a given lineObjects.
 		private: void resumeTrajectory(const ignition::msgs::StringMsg &_req)
 		{
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
@@ -390,7 +387,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                ///Sets the drawFlag of a given lineObjects.
+		///Sets the drawFlag of a given lineObjects.
 		private: void newCustomTrajectory(const ignition::msgs::StringMsg &_req)
 		{
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
@@ -400,7 +397,7 @@ namespace gazebo
 		}
 
 		/////////////////////////////////////////////
-                ///Adds a point to trajectory.
+		///Adds a point to trajectory.
 		///Cuts string in name and coordinate.
 		private: void addPoint(const ignition::msgs::StringMsg &_req)
 		{
@@ -423,6 +420,38 @@ namespace gazebo
 			}
 		}
 
+		/////////////////////////////////////////////
+		///Adds a square to static trajectory.
+		///Cuts string in name and coordinate.
+		private: void addStaticSquare(const ignition::msgs::StringMsg &_req)
+		{
+			std::vector<std::string> array;
+			std::size_t pos = 0, found;
+			while((found = _req.data().find_first_of(' ', pos)) != std::string::npos)
+			{
+				array.push_back(_req.data().substr(pos, found - pos));
+				pos = found+1;
+			}
+			array.push_back(_req.data().substr(pos));
+
+			if(trajectoryObjects.find(array[0]) == trajectoryObjects.end())
+			{
+				std::cerr << "Error " << _req.data() << " not found" << std::endl;
+			}
+			else
+			{
+				pointAdd((trajectoryObjects.find(array[0])->second).line,std::stod(array[1])-0.01,std::stod(array[2])-0.01,std::stod(array[3]));
+				pointAdd((trajectoryObjects.find(array[0])->second).line,std::stod(array[1])+0.01,std::stod(array[2])-0.01,std::stod(array[3]));
+				pointAdd((trajectoryObjects.find(array[0])->second).line,std::stod(array[1])+0.01,std::stod(array[2])+0.01,std::stod(array[3]));
+				pointAdd((trajectoryObjects.find(array[0])->second).line,std::stod(array[1])-0.01,std::stod(array[2])+0.01,std::stod(array[3]));
+				pointAdd((trajectoryObjects.find(array[0])->second).line,std::stod(array[1])-0.01,std::stod(array[2])-0.01,std::stod(array[3]));
+				
+
+			}
+		}
+
+		/////////////////////////////////////////////
+		///Actives lifecycle mode.
 		private: void activateLifecycle(const ignition::msgs::StringMsg &_req)
 		{
 
@@ -438,6 +467,8 @@ namespace gazebo
 			}
 		}
 
+		/////////////////////////////////////////////
+		///Deactivates lifecycle and return to normal draw mode.
 		private: void deactivateLifecycle(const ignition::msgs::StringMsg &_req)
 		{
 
@@ -453,7 +484,9 @@ namespace gazebo
 			}
 		}
 
-		
+		/////////////////////////////////////////////
+		///Sets number of points to display.
+		///Cuts string in name and number.
 		private: void setLifecycle(const ignition::msgs::StringMsg &_req)
 		{
 			std::vector<std::string> array;
@@ -475,15 +508,8 @@ namespace gazebo
 				((trajectoryObjects.find(array[0])->second).clear) = 1;
 				((trajectoryObjects.find(array[0])->second).lifecycle) = 1;
 				((trajectoryObjects.find(array[0])->second).length) = std::stoi(array[1]);
-
-			}
-
-			
+			}			
 		}
-
-		
-
-
 
 		/// All the event connections.
 		private: std::vector<event::ConnectionPtr> connections;
