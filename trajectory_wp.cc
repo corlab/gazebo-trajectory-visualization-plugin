@@ -43,7 +43,6 @@ namespace gazebo
 		private: std::string service_activateLifecycle = "/trajectory/command/activateLifecycle";
 		private: std::string service_setLifecycle = "/trajectory/command/setLifecycle";
 		private: std::string service_deactivateLifecycle = "/trajectory/command/deactivateLifecycle";
-		//TODO
 		private: std::string service_addStaticSquare = "/trajectory/command/addStaticSquare";
 		private: int colorIndex = 0;
 		private: std::string color[8] = { "Gazebo/Purple", "Gazebo/Yellow", "Gazebo/Green", "Gazebo/Red","Gazebo/White", "Gazebo/Yellow","Gazebo/Turquoise","Gazebo/Blue" };
@@ -266,7 +265,7 @@ namespace gazebo
 
 			if(trajectoryObjects.find(_req.data()) == trajectoryObjects.end())
 			{
-				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 0,lcLength,0};
+				trajectoryObjects[_req.data()] = {getLine(), 1, 0, 0, 1,lcLength,0};
 			}
 		}
 
