@@ -28,37 +28,47 @@ namespace TrajectoryService
         GazeboCommunication(TaskContext* owner)
             : RTT::Service("TrajectoryService", owner)
         {
+		this->addOperation("newTrajectory", &GazeboCommunication::newTrajectoryModel, this, RTT::OwnThread).doc("Adds trajectory of the specific object.")
+			.arg("visual", "Name of the visualobject");
 		this->addOperation("newTrajectoryModel", &GazeboCommunication::newTrajectoryModel, this, RTT::OwnThread).doc("Adds trajectory of the specific model.")
 			.arg("model", "Name of the model");
 		this->addOperation("newTrajectoryLink", &GazeboCommunication::newTrajectoryLink, this, RTT::OwnThread).doc("Add tajectory to link of specific model.")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 
+		this->addOperation("delTrajectory", &GazeboCommunication::delTrajectoryModel, this, RTT::OwnThread).doc("Deletes trajectory of the specific object.")
+			.arg("visual", "Name of the visualobject");
 		this->addOperation("delTrajectoryModel", &GazeboCommunication::delTrajectoryModel, this, RTT::OwnThread).doc("Deletes trajectory of the specific model.")
 			.arg("model", "Name of the model");
 		this->addOperation("delTrajectoryLink", &GazeboCommunication::delTrajectoryLink, this, RTT::OwnThread).doc("Deletes trajectory of the specific link.")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 
+		this->addOperation("clearTrajectory", &GazeboCommunication::clearTrajectoryModel, this, RTT::OwnThread).doc("Clears trajectory of specific object.")
+			.arg("visual", "Name of the visualobject");
 		this->addOperation("clearTrajectoryModel", &GazeboCommunication::clearTrajectoryModel, this, RTT::OwnThread).doc("Clears trajectory of specific model.")
 			.arg("model", "Name of the model");
 		this->addOperation("clearTrajectoryLink", &GazeboCommunication::clearTrajectoryLink, this, RTT::OwnThread).doc("Clears trajectory of specific link.")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 
+		this->addOperation("pauseTrajectory", &GazeboCommunication::pauseTrajectoryModel, this, RTT::OwnThread).doc("Pauses drawing of a specific trajectory.")
+			.arg("visual", "Name of the visualobject");
 		this->addOperation("pauseTrajectoryModel", &GazeboCommunication::pauseTrajectoryModel, this, RTT::OwnThread).doc("Pauses drawing of a specific trajectory.")
 			.arg("model", "Name of the model");
 		this->addOperation("pauseTrajectoryLink", &GazeboCommunication::pauseTrajectoryLink, this, RTT::OwnThread).doc("Pauses drawing of a specific trajectory.")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 
+		this->addOperation("resumeTrajectory", &GazeboCommunication::resumeTrajectoryModel, this, RTT::OwnThread).doc("Resumes drawing of a specific trajectory.")
+			.arg("visual", "Name of the visualobject");
 		this->addOperation("resumeTrajectoryModel", &GazeboCommunication::resumeTrajectoryModel, this, RTT::OwnThread).doc("Resumes drawing of a specific trajectory.")
 			.arg("model", "Name of the model");
 		this->addOperation("resumeTrajectoryLink", &GazeboCommunication::resumeTrajectoryLink, this, RTT::OwnThread).doc("Resumes drawing of a specific trajectory.")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 
-		this->addOperation("newCustomTrajectory", &GazeboCommunication::newCustomTrajectory, this, RTT::OwnThread).doc("Creates a static line.")
+		this->addOperation("newCustomTrajectory", &GazeboCommunication::newCustomTrajectory, this, RTT::OwnThread).doc("Creates a static line holder.")
 			.arg("model", "Name of the static line model");
 
 		this->addOperation("addPoint", &GazeboCommunication::addPoint, this, RTT::OwnThread).doc("Adds a point to a staticLine.")
@@ -73,6 +83,9 @@ namespace TrajectoryService
 			.arg("y", "Y coordinate of point")
 			.arg("z", "Z coordinate of point");
 
+		this->addOperation("setLifecycle", &GazeboCommunication::setLifecycleModel, this, RTT::OwnThread).doc("Changes length of trajectory.")
+			.arg("visual", "Name of the visualobject")
+			.arg("length", "Length of the trajectory");
 		this->addOperation("setLifecycleModel", &GazeboCommunication::setLifecycleModel, this, RTT::OwnThread).doc("Changes length of trajectory.")
 			.arg("model", "Name of the model")
 			.arg("length", "Length of the trajectory");
@@ -81,12 +94,16 @@ namespace TrajectoryService
 			.arg("link", "Name of the link")
 			.arg("length", "Length of the trajectory");
 
+		this->addOperation("activateLifecycle", &GazeboCommunication::activateLifecycleModel, this, RTT::OwnThread).doc("Adds a lifecylce to line. Default value 3000 Points")
+			.arg("visual", "Name of the visualobject");
 		this->addOperation("activateLifecycleModel", &GazeboCommunication::activateLifecycleModel, this, RTT::OwnThread).doc("Adds a lifecylce to line. Default value 3000 Points")
 			.arg("model", "Name of the model");
 		this->addOperation("activateLifecycleLink", &GazeboCommunication::activateLifecycleLink, this, RTT::OwnThread).doc("Adds a lifecylce to line. Default value 3000 Points")
 			.arg("model", "Name of the model")
 			.arg("link","Name of the link");
 
+		this->addOperation("deactivateLifecycle", &GazeboCommunication::deactivateLifecycleModel, this, RTT::OwnThread).doc("removes lifecycle from line.")
+			.arg("visual", "Name of the visualobject");
 		this->addOperation("deactivateLifecycleModel", &GazeboCommunication::deactivateLifecycleModel, this, RTT::OwnThread).doc("removes lifecycle from line.")
 			.arg("model", "Name of the model");
 		this->addOperation("deactivateLifecycleLink", &GazeboCommunication::deactivateLifecycleLink, this, RTT::OwnThread).doc("removes lifecycle from line.")
