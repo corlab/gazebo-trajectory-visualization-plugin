@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-
+project(trajectoryService)
 find_package(gazebo 8.0 REQUIRED)
 if(GAZEBO_VERSION)
   if(${GAZEBO_VERSION} GREATER 6)
@@ -22,24 +22,21 @@ include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
 list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 
-add_library(trajectory_wp SHARED trajectory_wp.cc)
+add_library(trajectory_wp SHARED src/gazebo/trajectory_wp.cc)
 target_link_libraries(trajectory_wp ${GAZEBO_LIBRARIES} ${IGNITION-TRANSPORT_LIBRARIES})
 
-add_executable(commander commander.cc)
+add_executable(commander example/gazebo/commander.cc)
 target_link_libraries(commander ${GAZEBO_LIBRARIES} ${IGNITION-TRANSPORT_LIBRARIES})
 
-find_package(OROCOS-RTT REQUIRED ${RTT_HINTS})
 
+find_package(OROCOS-RTT ${RTT_HINTS})
 
+add_compile_options(-std=c++11)
 if(OROCOS-RTT_FOUND)
-#	project(trajectoryService)
-
-#	add_compile_options(-std=c++11)
-
-#	include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake)
-#	orocos_service(orocosTrajectoryService orocosTrajectoryService.cpp)
-#	target_link_libraries(orocosTrajectoryService ${IGNITION-TRANSPORT_LIBRARIES})
-#	orocos_generate_package()
+	include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake)
+	orocos_service(orocosTrajectoryService src/orocos/orocosTrajectoryService.cpp)
+	target_link_libraries(orocosTrajectoryService ${IGNITION-TRANSPORT_LIBRARIES})
+	orocos_generate_package()
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
