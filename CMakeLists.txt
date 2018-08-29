@@ -15,6 +15,9 @@ include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
 list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 
+find_package (Qt4)
+include (${QT_USE_FILE})
+add_definitions(${QT_DEFINITIONS})
 
 find_package(ignition-transport2 QUIET)
 if(IGNITION-TRANSPORT_FOUND OR ignition-transport2_FOUND)
@@ -32,7 +35,8 @@ include_directories(${IGNITION-TRANSPORT_INCLUDE_DIRS})
 link_directories(${IGNITION-TRANSPORT_LIBRARY_DIRS})
 
 add_library(trajectory_wp SHARED src/gazebo/trajectory_wp.cc)
-target_link_libraries(trajectory_wp ${GAZEBO_LIBRARIES} ${IGNITION-TRANSPORT_LIBRARIES})
+target_link_libraries(trajectory_wp ${GAZEBO_LIBRARIES} ${IGNITION-TRANSPORT_LIBRARIES}
+	${QT_LIBRARIES})
 
 add_executable(commander example/gazebo/commander.cc)
 target_link_libraries(commander ${GAZEBO_LIBRARIES} ${IGNITION-TRANSPORT_LIBRARIES})

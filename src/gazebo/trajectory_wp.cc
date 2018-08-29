@@ -4,6 +4,12 @@
 #include <ignition/transport.hh>
 #include <ignition/math.hh>
 
+#include <gazebo/gui/gui.hh>
+#include <gazebo/rendering/DynamicLines.hh>
+#include <gazebo/common/Event.hh>
+#include <gazebo/common/Events.hh>
+
+
 
 namespace gazebo
 {
@@ -136,8 +142,43 @@ namespace gazebo
 			rendering::Events::ConnectCreateScene(
 			boost::bind(&SystemGUI::InitScene, this)));
 
+
+
 			this->connections.push_back(event::Events::ConnectPreRender(
 			std::bind(&SystemGUI::Update, this)));
+
+			this->connections.push_back(gui::Events::ConnectMainWindowReady(
+			std::bind(&SystemGUI::aaa, this)));
+		}
+
+		private: void aaa() {
+			gazebo::gui::MainWindow* win = gazebo::gui::get_main_window();
+			gui::ModelListWidget *layersWidget = new gui::ModelListWidget(win);
+			win->AddToLeftColumn("DLW1", layersWidget);
+
+//			win->Pause();
+
+
+			QWidget* wid = new QWidget(win);
+			QVBoxLayout *mainLayout = new QVBoxLayout();
+
+			// Create a push button, and connect it to the OnButton function
+			QPushButton *button = new QPushButton("< Back");
+			QObject::connect(button, SIGNAL(clicked()),wid, SLOT(buttonEvent()));
+
+			mainLayout->addWidget(button);
+			wid->setLayout(mainLayout);
+			wid->layout()->setContentsMargins(0, 0, 0, 2);
+
+//			win->SetLeftPaneVisibility(false);
+			std::cout << "Got main window" << std::endl;
+			win->AddToLeftColumn("DLW", wid);
+			win->ShowLeftColumnWidget("DLW");
+
+		}
+
+		private: void buttonEvent() {
+			gazebo::gui::get_main_window()->ShowLeftColumnWidget("default");
 		}
 
 		/////////////////////////////////////////////
